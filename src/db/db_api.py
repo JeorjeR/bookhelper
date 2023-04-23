@@ -2,9 +2,8 @@ import os
 from types import MappingProxyType
 import asyncpg
 from asyncpg import Connection, Pool
-from asyncpg.pool import PoolAcquireContext
-
 from src.db import queries
+
 
 CONNECTION_SETTINGS = MappingProxyType(dict(
         host=os.environ.get('HOST'),
@@ -18,15 +17,11 @@ CONNECTION_SETTINGS = MappingProxyType(dict(
 class BookHelperAPI:
     def __init__(self, connection_pool: Pool):
         self.connection_pool: Pool = connection_pool
-        book_table = 'books'
-        user_table = 'users'
-
-    #TODO посмотреть как вставлять значения asyncpg и будет готов каркас
 
     async def get_book_page(self, book_id: int, page_number: int):
         ...
 
-    async def do_query(self, query, *args):
+    async def execute(self, query, *args):
         async with self.connection_pool.acquire() as connection:
             connection: Connection
             # TODO передать сюда еще метод который к базе применяется,
@@ -34,7 +29,7 @@ class BookHelperAPI:
             await connection.fetchval(query, *args)
 
     async def get_book(self, book_id: int):
-        return await self.do_query(queries.GET_BOOK, book_id)
+        return await self.execute(queries.GET_BOOK, book_id)
 
     def get_user(self, user_id: int):
         ...
@@ -59,20 +54,10 @@ class BookHelperDB:
         return connection_settings
 
     async def connect(self) -> Connection:
-        connection: Connection = await asyncpg.connect(self.connection_settings)
-        return connection
+        return await asyncpg.connect(self.connection_settings)
 
     async def create_pool(self) -> Pool:
         return await asyncpg.create_pool(**self.connection_settings)
-
-    # TODO Переделать через асинхронный контекстный менеджер
-    #   типо создаем пул в этом классе а потом в query_api возвращаем класс контекстного менежера
-    #   и по нему уже делаем соединение из пула
-    #   типо
-    #   db = DB(**settings)
-    #   with db.query_api() as connection:
-    #       await connection.get_book(...)
-    #       ...
 
     async def query_api(self) -> BookHelperAPI:
         return BookHelperAPI(await self.create_pool())
