@@ -14,7 +14,14 @@ CONNECTION_SETTINGS = MappingProxyType(dict(
 ))
 
 
-class BookHelperAPI:
+class Singleton:
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super().__new__(cls, *args, **kwargs)
+        return cls.instance
+
+
+class BookHelperAPI(Singleton):
     def __init__(self, connection_pool: Pool):
         self.connection_pool: Pool = connection_pool
 
@@ -41,7 +48,7 @@ class BookHelperAPI:
         ...
 
 
-class BookHelperDB:
+class BookHelperDB(Singleton):
     def __init__(self, settings: dict):
         self.settings = settings
 
