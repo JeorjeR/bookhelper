@@ -25,9 +25,6 @@ class BookHelperAPI(Singleton):
     def __init__(self, connection_pool: Pool):
         self.connection_pool: Pool = connection_pool
 
-    async def get_book_page(self, book_id: int, page_number: int):
-        ...
-
     async def execute(self, query, *args):
         async with self.connection_pool.acquire() as connection:
             connection: Connection
@@ -35,17 +32,20 @@ class BookHelperAPI(Singleton):
             #   не всегда он будет fetchval
             await connection.fetchval(query, *args)
 
+    async def get_book_page(self, book_id: int, page_number: int):
+        return await self.execute(queries.GET_BOOK_PAGE, book_id, page_number)
+
     async def get_book(self, book_id: int):
         return await self.execute(queries.GET_BOOK, book_id)
 
-    def get_user(self, user_id: int):
-        ...
+    async def get_user(self, user_id: int):
+        return await self.execute(queries.GET_USER, user_id)
 
-    def add_user_book(self, user_id):
-        ...
+    async def add_user_book(self, user_id):
+        return await self.execute(queries.INSERT_USER_BOOK, user_id)
 
-    def add_user(self):
-        ...
+    async def add_user(self, user_id, user_name):
+        return await self.execute(queries.INSERT_USER, user_id, user_name)
 
 
 class BookHelperDB(Singleton):

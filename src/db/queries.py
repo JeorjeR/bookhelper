@@ -34,10 +34,14 @@ DELETE_USER = f"""
     DELETE FROM {user.table_name} WHERE {user.user_id} = $1;
 """
 
-GET_USER_BOOK_PAGE = f"""
-    SELECT {book.pages}[$3] FROM {book.table_name} WHERE {book.book_id} = $2 AND {book.user_id} = $1;
+GET_BOOK_PAGE = f"""
+    SELECT {book.pages}[$2] FROM {book.table_name} WHERE {book.book_id} = $1;
 """
 
 GET_BOOK = f"""
-    SELECT {book.pages} FROM {book.table_name} WHERE {book.book_id} = $1;
+    SELECT {book.book_id}, {book.book_name}, {book.pages} FROM {book.table_name} WHERE {book.book_id} = $1;
+"""
+
+GET_USER = f"""
+    SELECT {user.user_id}, {user.user_name} FROM {user.table_name} WHERE {user.user_id} = $1;
 """
